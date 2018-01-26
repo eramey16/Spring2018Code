@@ -99,20 +99,31 @@ int main()
 	
 	// array to hold char format of output data
 	char dataOut[N][4] = {0};
+//	double errors[N][4] = {0};
+	double max_err = 0;
+	double mean_err = 0;
 	
 	// loop through output data
 	for(int i=0;i<N;++i){
 		// put values in a temporary array for loop
-		double d[] = {xOut[i][0], xOut[i][1], yOut[i][0], yOut[i][1]};
+		double d[] = {xOut[i][0]/N, xOut[i][1]/N, yOut[i][0]/N, yOut[i][1]/N};
 		// loop through values
 		for(int j=0;j<4;++j){
 			// round the value and scale down by N to offset scaling from IFFT
 			if(d[j] > 0){
-				dataOut[i][j] = (char)(d[j]/N+0.5);
+				dataOut[i][j] = (char)(d[j]+0.5);
 			}
 			else{
-				dataOut[i][j] = (char)(d[j]/N-0.5);
+				dataOut[i][j] = (char)(d[j]-0.5);
 			}
+			
+			// save error statistics
+			double err = d[j] - (double)dataIn[i][j];
+//			errors[i][j] = err;
+			if(err < 0) err = -err;
+			if(err > max_err) max_err = err;
+			mean_err += err/(N*4.0);
+			
 			// check value against initial value
 			if(dataIn[i][j] != dataOut[i][j]){
 				// will print if data does not match
@@ -120,5 +131,16 @@ int main()
 			}
 		}
 	}
+	
+	// print error statistics
+	cout << endl << "Mean error: " << mean_err << endl;
+	cout << "Max error: " << max_err << endl;
+//	cout << "first 25 errors: " << endl;
+//	for(int i=0;i<25;++i){
+//		for(int j=0;j<4;++j){
+//			cout << errors[i][j] << ", ";
+//		}
+//		cout << endl;
+//	}
 }
 
