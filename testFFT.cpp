@@ -10,8 +10,8 @@
 using namespace std;
 
 int N = 65536;
-int BINSIZE = 8;
-int SCALE = 128;
+int BINSIZE = 16;
+int SCALE = 512;
 
 // Prints a distribution from a histogram array
 // scale changes number of stars per bin
@@ -55,11 +55,11 @@ int main()
 	int hist[4][255] = {0};
 	
 	// loop through data array
-	for(int i=0;i<4;++i){
-		for(int j=0;j<N;++j){
+	for(int i=0;i<N;++i){
+		for(int j=0;j<4;++j){
 			char num = (char)(distr(gen)); // randomly generate character
-			dataIn[j][i] = num; // record in data
-			hist[i][num+128]++; // add to histogram
+			dataIn[i][j] = num; // record in data
+			hist[j][num+128]++; // add to histogram
 		}
 	}
 	
@@ -68,10 +68,10 @@ int main()
 	cout << endl;
 	
 	// Print all histograms
-	for(int i=0;i<4;++i){
-		cout << words[i] << endl << endl;
-		printDistribution(hist[i], BINSIZE, SCALE);
-	}
+//	for(int i=0;i<4;++i){
+//		cout << words[i] << endl << endl;
+//		printDistribution(hist[i], BINSIZE, SCALE);
+//	}
 	
 	// complex arrays to hold initial data
 	fftw_complex xVals[N];
