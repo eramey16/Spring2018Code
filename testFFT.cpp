@@ -9,7 +9,9 @@
 
 using namespace std;
 
-int N = 1024;
+int N = 65536;
+int BINSIZE = 8;
+int SCALE = 128;
 
 // Prints a distribution from a histogram array
 // scale changes number of stars per bin
@@ -68,7 +70,7 @@ int main()
 	// Print all histograms
 	for(int i=0;i<4;++i){
 		cout << words[i] << endl << endl;
-		printDistribution(hist[i], 16, 8);
+		printDistribution(hist[i], BINSIZE, SCALE);
 	}
 	
 	// complex arrays to hold initial data
@@ -134,7 +136,7 @@ int main()
 	
 	// print error statistics
 	cout << endl << "Mean error: " << mean_err << endl;
-	cout << "Max error: " << max_err << endl;
+	cout << "Max error: " << max_err << endl << endl;
 //	cout << "first 25 errors: " << endl;
 //	for(int i=0;i<25;++i){
 //		for(int j=0;j<4;++j){
