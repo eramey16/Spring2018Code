@@ -8,15 +8,17 @@
 #include <memory.h>
 #include <cmath>
 #include <vector>
+#include <float.h>
+
 using namespace std;
 
 int N = 1024;
-int BINSIZE = 16;
-int SCALE = 512;
+int BINSIZE = 4;
+int SCALE = 4;
 
 
 ////////////////////////////// RunningStats code ///////////////////////////
-//////// from https://www.johndcook.com/blog/skewness_kurtosis/
+//////// from https://www.johndcook.com/blog/skewness_kurtosis/ ///////////
  
 class RunningStats
 {
@@ -191,10 +193,10 @@ int main()
 	cout << endl;
 	
 	// Print all histograms
-//	for(int i=0;i<4;++i){
-//		cout << words[i] << endl << endl;
-//		printDistribution(hist[i], BINSIZE, SCALE);
-//	}
+	for(int i=0;i<4;++i){
+		cout << words[i] << endl << endl;
+		printDistribution(hist[i], BINSIZE, SCALE);
+	}
 	
 	// complex arrays to hold initial data
 	fftw_complex xVals[N];
@@ -219,11 +221,39 @@ int main()
 	// Perform FFT/IFFT on initial data
 	FFT(xVals, xFFT);
 	FFT(yVals, yFFT);
+
+	// Power spectra
+	double xPow[N] = {0};
+	double yPow[N] = {0};
+	
+	for(int i=0;i<N;++i){
+		xPow[i] = pow(xFFT[i][0], 2)+pow(xFFT[i][1], 2);
+		yPow[i] = pow(yFFT[i][0], 2)+pow(yFFT[i][1], 2);
+	}
+
 	
 /////////// Kurtosis code goes here:
 
-	RunningStats rs = RunningStats();
+	RunningStats rs[6] = {RunningStats()};
 
+	for(int i=0;i<N;++i){
+		// put values in a temporary array for loop
+		double d[] = {xFFT[i][0], xFFT[i][1], yFFT[i][0], yFFT[i][1], xPow[i], yPow[i]};
+		for(int j=0;j<6;++j){
+			rs[j].Push(d[j]);
+		}
+	}
+	
+	
+		
+	for(int i=0; i<6; ++i){
+		cout << "Kurtosis for row " << i << ": " << rs[i].Kurtosis() << endl;
+		cout << "N: " << rs[i].NumDataValues() << endl;
+		cout << "Mean: " << rs[i].Mean() << endl;
+		cout << "Variance: " << rs[i].Variance() << endl;
+		cout << "Skewness: " << rs[i].Skewness() << endl << endl;
+	}
+	
 ////////// End of Kurtosis code	
 	
 	IFFT(xFFT, xOut);
