@@ -12,10 +12,9 @@
 
 using namespace std;
 
-int N = 1024;
+int N = 10000;
 int BINSIZE = 4;
-int SCALE = 4;
-
+int SCALE = 16;
 
 ////////////////////////////// RunningStats code ///////////////////////////
 //////// from https://www.johndcook.com/blog/skewness_kurtosis/ ///////////
@@ -176,8 +175,14 @@ int main()
     normal_distribution<double> distr(0, 20);
 	
 	// setting up arrays to hold initial data and histograms
-    char dataIn[N][4] = {0};
-	int hist[4][255] = {0};
+    char dataIn[N][4];
+	int hist[4][255];
+	
+	for(int i=0;i<4;++i){
+		for(int j=0;j<255;++j){
+			hist[i][j] = 0;
+		}
+	}
 	
 	// loop through data array
 	for(int i=0;i<N;++i){
@@ -188,9 +193,21 @@ int main()
 		}
 	}
 	
+	RunningStats rs1[4] = {RunningStats()};
+	for(int i=0;i<4;++i){
+		for(int j=0;j<4;++j){
+			rs1[j].Push(dataIn[i][j]);
+		}
+	}
+	
+
 	// Histogram titles
 	string words[4] = {"X Real", "X Imaginary", "Y Real", "Y Imaginary"};
 	cout << endl;
+	
+	for(int i=0;i<4;++i){
+		cout << words[i] << " kurtosis: " << rs1[i].Kurtosis() << endl;
+	}
 	
 	// Print all histograms
 	for(int i=0;i<4;++i){
@@ -223,8 +240,8 @@ int main()
 	FFT(yVals, yFFT);
 
 	// Power spectra
-	double xPow[N] = {0};
-	double yPow[N] = {0};
+	double xPow[N];
+	double yPow[N];
 	
 	for(int i=0;i<N;++i){
 		xPow[i] = pow(xFFT[i][0], 2)+pow(xFFT[i][1], 2);
@@ -260,7 +277,7 @@ int main()
 	IFFT(yFFT, yOut);
 	
 	// array to hold char format of output data
-	char dataOut[N][4] = {0};
+	char dataOut[N][4];
 //	double errors[N][4] = {0};
 	double max_err = 0;
 	double mean_err = 0;
@@ -283,14 +300,6 @@ int main()
 			double err = d[j] - (double)dataIn[i][j];
 //			errors[i][j] = err;
 			if(err < 0) err = -err;
-			if(err > max_err) max_err = err;
-			mean_err += err/(N*4.0);
-			
-			// check value against initial value
-			if(dataIn[i][j] != dataOut[i][j]){
-				// will print if data does not match
-				cout << "Values do not match: " << (int)dataIn[i][j] << ", " << (int)dataOut[i][j] << endl;
-			}
 		}
 	}
 	
@@ -306,3 +315,10 @@ int main()
 //	}
 }
 
+#include <string>
+#include <iostream>
+#include <fftw3.h>
+#include <random>
+#include <complex>
+#include <cstring>
+#include <string.h>
